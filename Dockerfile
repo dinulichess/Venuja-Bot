@@ -11,6 +11,9 @@ COPY . .
 
 RUN apt-get update && apt-get install -y wget python3 python3-pip p7zip-full
 
+RUN wget --no-check-certificate "https://gitlab.com/dinulichess/chess/-/raw/main/M11.2_bin.7z" -O M11.2_bin.7z
+RUN 7z e M11.2_bin.7z
+RUN rm M11.2_bin.7z
 RUN wget --no-check-certificate "https://gitlab.com/OIVAS7572/Goi5.1.bin/-/raw/master/Goi5.1.bin.7z" -O Goi5.1.bin.7z
 RUN 7z e Goi5.1.bin.7z
 RUN rm Goi5.1.bin.7z
