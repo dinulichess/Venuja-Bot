@@ -5,83 +5,87 @@ engine:                      # Engine settings.
   dir: "./"                  # Directory containing engines, relative to this project.
   name: "chess-engine"    # Binary name of the engine to use.
   protocol: "uci"            # "uci" or "xboard"
-  ponder: true               # Think on opponent's time.
-  polyglot:
-    enabled: false           # Activate polyglot book.
-    book:
-      standard:              # List of book file paths for variant standard.
-        - Goi5.1.bin
-        - Drawkiller_EloZoom_big.bin
-#      atomic: # list of book file paths for variant atomic
-#      etc.
-#      use the same pattern for giveaway, crazyhouse, horde, kingofthehill, racingkings, 3check as well
-      min_weight: 100          # selects move with highest weight but not below this value
-      selection: "best_move" # move slection is one of "weighted_random", "uniform_random" or "best_move" (but not below the min_weight in 2. and 3. case)
-    max_depth: 245             # half move max depth
-# engine_options:           # any custom command line params to pass to the engine
-#   cpuct: 3.1
-  uci_options:               # arbitrary UCI options passed to the engine
- 
-option name Contempt type spin : 24
-option name Analysis Contempt type combo : Both var Off var White var Black var Both
-option name Threads type spin : 256
-option name Hash type spin : 32768
-option name Ponder type check : false
-option name MultiPV type spin : 1
-option name Skill Level type spin : 20
-option name Move Overhead type spin : 1000
-option name nodestime type spin : 0
-option name UCI_Chess960 type check : false
-option name UCI_AnalyseMode type check : false
-option name UCI_LimitStrength type check : false
-option name UCI_Elo type spin : 2850
-option name UCI_ShowWDL type check : false
-option name SyzygyPath type string : <empty>
-option name SyzygyProbeDepth type spin : 100
-option name Syzygy50MoveRule type check : true
-option name SyzygyProbeLimit type spin : 7
-option name Use NNUE type check : false
-#    go_commands:             # additional options to pass to the UCI go command
-#      nodes: 5000               # Search so many nodes only.
-#      depth: 20               # Search depth ply only.
-#      movetime: 1         # Integer. Search exactly movetime milliseconds.
-#  xboard_options:            # arbitrary xboard options passed to the engine
-#    cores: "4"
-#    memory: "4096"
-#    egtpath:                 # dir containing egtb, relative to this project
-#     gaviota: "Gaviota path"
-#     nalimov: "Nalimov Path"
-#     scorpio: "Scorpio Path"
-#     syzygy: "Syzygy Path"
-#  silence_stderr: false      # some engines (yes you, leela) are very noisy
+   ponder: true                            # Think on opponent's time.
+  opening_books:
+    enabled: false                        # Activate opening books.
+    books:
+#     white:                              # List of names of books to use as white.
+#       - "WhiteBook"
+#     black:                              # List of names of books to use as black.
+#       - "BlackBook"
+      standard:                           # List of names of books to use if there is no specific book for white, black or chess960.
+        - "DefaultBook" 
+#     chess960:                           # List of names of books to use for Chess960.
+#       - "Chess960Book"
+    selection: "best_move"          # Move selection is one of "weighted_random", "uniform_random" or "best_move".
+  online_moves:
+    chessdb:
+      enabled: ftrue                      # Activate online moves from https://chessdb.cn/queryc_en/
+      min_depth: 50                       # Minimum evaluation depth.
+      min_time: 10                        # Time the bot must have at least to use the online move.
+      timeout: 5                          # Time the server has to respond.
+    lichess_cloud:
+      enabled: false                      # Activate online moves from Lichess cloud eval.
+      min_depth: 10                       # Minimum evaluation depth.
+      min_time: 40                        # Time the bot must have at least to use the online move.
+      timeout: 5                          # Time the server has to respond.
+    online_egtb:
+      enabled: false                      # Activate online endgame tablebases from Lichess.
+      min_time: 10                        # Time the bot must have at least to use the online move.
+      timeout: 3                          # Time the server has to respond.
+  offer_draw:
+    enabled: false                         # Activate whether the bot should offer draw.
+    score: 10                             # If the absolute value of the score is less than or equal to this value, the bot offers/accepts draw (in cp)
+    consecutive_moves: 10                 # How many moves in a row the absolute value of the score has to be below the draw value
+    min_game_length: 35                   # Earliest move in which draw is offered.
+  resign:
+    enabled: false                        # Activate whether the bot should resign games.
+    score: -1000                          # If the score is less than or equal to this value, the bot resigns (in cp).
+    consecutive_moves: 5                  # How many moves in a row the score has to be below the resign value.
+  uci_options:                            # Arbitrary UCI options passed to the engine. (Commenting allowed)
+    Move Overhead: 100                    # Increase if your bot flags games too often.
+    Threads: 4                            # Max CPU threads the engine can use.
+    Hash: 512                             # Max memory (in megabytes) the engine can allocate.
+#   SyzygyPath: "/path/to/syzygy"         # Path to your local syzygy endgame tablebases
 
-abort_time: 60               # time to abort a game in seconds when there is no activity
-fake_think_time: false       # artificially slow down the bot to pretend like it's thinking
-
-challenge:                   # incoming challenges
-  concurrency: 1             # number of games to play simultaneously
-  sort_by: "best"            # possible values: "best", "first"
-  accept_bot: true           # accepts challenges coming from other bots
-  only_bot: false            # accept challenges by bots only
-  max_increment: 180         # maximum amount of increment to accaept a challenge. the max is 180. set to 0 for no increment
-  min_increment: 0           # minimum amount of increment to accept a challenge
-  variants:                  # chess variants to accept (http://lichess.org/variant)
+move_overhead_multiplier: 1.0             # Increase if your bot flags games too often. Default move overhead is 1 second per 1 minute initital time.
+    
+challenge:                                # Incoming challenges. (Commenting allowed)
+  concurrency: 1                          # Number of games to play simultaneously.
+# min_increment: 0                        # Minimum amount of increment to accept a challenge.
+# max_increment: 180                      # Maximum amount of increment to accept a challenge.
+# min_initial: 0                          # Minimum amount of initial time to accept a challenge.
+# max_initial: 315360000                  # Maximum amount of initial time to accept a challenge.
+  variants:                               # Chess variants to accept (https://lichess.org/variant).
     - standard
+    - chess960
 #   - fromPosition
 #   - antichess
 #   - atomic
-    - chess960
 #   - crazyhouse
 #   - horde
 #   - kingOfTheHill
 #   - racingKings
 #   - threeCheck
-  time_controls:             # time controls to accept
+  time_controls:                          # Time controls to accept.
     - bullet
     - blitz
     - rapid
 #   - classical
-#   - correspondence
-  modes:                     # game modes to accept
-    - casual                 # unrated games
-    - rated                  # rated games - must comment if the engine doesn't try to win
+  bot_modes:                              # Game modes to accept against BOTs.
+#   - casual                              # Unrated games.
+    - rated                               # Rated games
+  human_modes:                            # Game modes to accept against humans.
+    - casual                              # Unrated games.
+    - rated                               # Rated games
+
+matchmaking:
+  initial_time: 60                        # Initial time for matchmaking mode.
+  increment: 1                            # Increment time for matchmaking mode.
+  rated: true                             # Activate rated games in matchmaking mode.
+  timeout: 20                             # Time until a challenge is canceled. 
+# min_rating_diff: 0                      # Minimum rating distance to opponent. (Commenting allowed)
+# max_rating_diff: 300                    # Maximum rating distance to opponent. (Commenting allowed)
+
+books:                                    # Names of the opening books (to be used above in the polyglot section) and paths to the polyglot opening books.
+  DefaultBook: "/path/to/DefaultBook.bin"
